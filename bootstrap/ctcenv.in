@@ -1,0 +1,21 @@
+#!/bin/bash
+
+E=${1:-devel}
+if [ ! -e @VIRTUAL_ENV@/bin/activate.$E ]; then
+	echo "Target not found"
+	echo "to activate venv execute: ./ctcenv [target]"
+	echo "target: production or devel"
+	exit 1
+fi
+ZZZ=$(mktemp --tmpdir=@VIRTUAL_ENV@/tmp)
+
+cp @VIRTUAL_ENV@/bin/bashrc $ZZZ
+cat @VIRTUAL_ENV@/bin/activate.$E >> $ZZZ
+cat <<EOF >>$ZZZ
+function finish {
+  rm -f $ZZZ
+}
+trap finish EXIT
+EOF
+
+exec bash --rcfile $ZZZ
